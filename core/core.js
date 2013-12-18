@@ -226,6 +226,19 @@ Object.defineProperty(Montage, "specialize", {
             value: constructor,
             enumerable: false
         });
+
+        Montage.defineProperty(prototype, "__constructor__", {
+            value: Function
+        });
+        Montage.defineProperty(constructor, "constructor", {
+            get: function () {
+                return this.__constructor__;
+            },
+            set: function (value) {
+                this.__constructor__ = value;
+                debugger
+            }
+        });
         return constructor;
 
     },
@@ -930,6 +943,11 @@ var _functionInstanceMetadataDescriptor = {
     isInstance: {value: true}
 };
 
+var _constructorMetadataDescriptor = {
+    objectName: {value: "Function"},
+    isInstance: {value: false}
+};
+
 /**
     Get the metadata Montage has on the given object
     @function Montage.getInfoForObject
@@ -944,9 +962,17 @@ Montage.defineProperty(Montage, "getInfoForObject", {
         if (hasOwnProperty.call(object, "_montage_metadata")) {
             return object._montage_metadata;
         } else {
+            // Then this object has not been exported from a module
             metadata = object._montage_metadata || (object.constructor && object.constructor._montage_metadata) || null;
+            // isInstance really means has not been exported see SerializationCompiler.
             if (object.constructor === Function) {
-                instanceMetadataDescriptor = _functionInstanceMetadataDescriptor;
+                if(object.prototype === Object) {
+                    // the this is a simple function.
+                    instanceMetadataDescriptor = _functionInstanceMetadataDescriptor;
+                } else {
+                    // the this is a constructor.
+                    instanceMetadataDescriptor = _constructorMetadataDescriptor;
+                }
             } else {
                 instanceMetadataDescriptor = _instanceMetadataDescriptor;
             }
@@ -1131,8 +1157,6 @@ require("core/serialization/bindings");
  * <b>Note</b> This is a class method beware...
  */
 exports._blueprintModuleIdDescriptor = {
-    serializable:false,
-    enumerable: false,
     get:function () {
         var info = Montage.getInfoForObject(this);
         var self = (info && !info.isInstance) ? this : this.constructor;
@@ -1154,8 +1178,6 @@ exports._blueprintModuleIdDescriptor = {
 };
 
 exports._blueprintDescriptor = {
-    serializable:false,
-    enumerable: false,
     get:function () {
         var info = Montage.getInfoForObject(this);
         var self = (info && !info.isInstance) ? this : this.constructor;

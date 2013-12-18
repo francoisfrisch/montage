@@ -72,7 +72,9 @@ exports.BlueprintReference = RemoteReference.specialize( {
                 }
             });
         }
-    },
+    }
+
+}, {
 
     referenceFromValue: {
         value: function(value) {

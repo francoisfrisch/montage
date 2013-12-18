@@ -1308,58 +1308,13 @@ var Component = exports.Component = Target.specialize(/** @lends Component# */ {
                         object.parentComponent === this) {
                         templateObjects[label] = object;
                     } else {
-                        descriptor.get = this._makeTemplateObjectGetter(this, label, object);
+                        descriptor.get = Component._makeTemplateObjectGetter(this, label, object);
                         Object.defineProperty(templateObjects, label, descriptor);
                     }
                 }
             }
 
             this.templateObjects = templateObjects;
-        }
-    },
-
-    _makeTemplateObjectGetter: {
-        value: function(owner, label, object) {
-            var querySelectorLabel = "@"+label,
-                isRepeated,
-                components,
-                component;
-
-            return function templateObjectGetter() {
-                if (isRepeated) {
-                    return owner.querySelectorAllComponent(querySelectorLabel, owner);
-                } else {
-                    components = owner.querySelectorAllComponent(querySelectorLabel, owner);
-                    // if there's only one maybe it's not repeated, let's go up
-                    // the tree and found out.
-                    if (components.length === 1) {
-                        component = components[0];
-                        while (component = component.parentComponent) {
-                            if (component === owner) {
-                                // we got to the owner without ever hitting a component
-                                // that repeats its child components, we can
-                                // safely recreate this property with a static value
-                                Object.defineProperty(this, label, {
-                                    value: components[0]
-                                });
-                                return components[0];
-                            } else if (component.clonesChildComponents) {
-                                break;
-                            }
-                        }
-                    } else if (components.length === 0) {
-                        // We didn't find any in the component tree
-                        // so it was probably removed in the meanwhile.
-                        // We return the one that was in the template
-                        // TODO: need to make sure this component hasn't been
-                        // disposed.
-                        return object;
-                    }
-
-                    isRepeated = true;
-                    return components;
-                }
-            };
         }
     },
 
@@ -1480,40 +1435,6 @@ var Component = exports.Component = Target.specialize(/** @lends Component# */ {
             }
         }
     },
-
-    blueprintModuleId: {
-        serializable: false,
-        enumerable: false,
-        get: function () {
-            var info = Montage.getInfoForObject(this);
-            var self = (info && !info.isInstance) ? this : Object.getPrototypeOf(this);
-            if ((!Object.getOwnPropertyDescriptor(self, "_blueprintModuleId")) || (!self._blueprintModuleId)) {
-                info = Montage.getInfoForObject(self);
-                var moduleId = info.moduleId,
-                    slashIndex = moduleId.lastIndexOf("/"),
-                    dotIndex = moduleId.lastIndexOf(".");
-                slashIndex = ( slashIndex === -1 ? 0 : slashIndex + 1 );
-                dotIndex = ( dotIndex === -1 ? moduleId.length : dotIndex );
-                dotIndex = ( dotIndex < slashIndex ? moduleId.length : dotIndex );
-
-                var blueprintModuleId;
-                if ((dotIndex < moduleId.length) && ( moduleId.slice(dotIndex, moduleId.length) === ".reel")) {
-                    // We are in a reel
-                    blueprintModuleId = moduleId + "/" + moduleId.slice(slashIndex, dotIndex) + ".meta";
-                } else {
-                    // We look for the default
-                    blueprintModuleId = moduleId.slice(0, dotIndex) + ".meta";
-                }
-
-                Montage.defineProperty(self, "_blueprintModuleId", {
-                    value: blueprintModuleId
-                });
-            }
-            return self._blueprintModuleId;
-        }
-    },
-
-    blueprint: require("montage")._blueprintDescriptor,
 
     /**
      * Callback for the ```canDrawGate```.
@@ -2619,6 +2540,86 @@ var Component = exports.Component = Target.specialize(/** @lends Component# */ {
             });
         }
     }
+
+}, {
+
+    _makeTemplateObjectGetter: {
+        value: function(owner, label, object) {
+            var querySelectorLabel = "@"+label,
+                isRepeated,
+                components,
+                component;
+
+            return function templateObjectGetter() {
+                if (isRepeated) {
+                    return owner.querySelectorAllComponent(querySelectorLabel, owner);
+                } else {
+                    components = owner.querySelectorAllComponent(querySelectorLabel, owner);
+                    // if there's only one maybe it's not repeated, let's go up
+                    // the tree and found out.
+                    if (components.length === 1) {
+                        component = components[0];
+                        while (component = component.parentComponent) {
+                            if (component === owner) {
+                                // we got to the owner without ever hitting a component
+                                // that repeats its child components, we can
+                                // safely recreate this property with a static value
+                                Object.defineProperty(this, label, {
+                                    value: components[0]
+                                });
+                                return components[0];
+                            } else if (component.clonesChildComponents) {
+                                break;
+                            }
+                        }
+                    } else if (components.length === 0) {
+                        // We didn't find any in the component tree
+                        // so it was probably removed in the meanwhile.
+                        // We return the one that was in the template
+                        // TODO: need to make sure this component hasn't been
+                        // disposed.
+                        return object;
+                    }
+
+                    isRepeated = true;
+                    return components;
+                }
+            };
+        }
+    },
+
+    blueprintModuleId: {
+        get: function () {
+            var info = Montage.getInfoForObject(this);
+            var self = (info && !info.isInstance) ? this : Object.getPrototypeOf(this);
+            if ((!Object.getOwnPropertyDescriptor(self, "_blueprintModuleId")) || (!self._blueprintModuleId)) {
+                info = Montage.getInfoForObject(self);
+                var moduleId = info.moduleId,
+                    slashIndex = moduleId.lastIndexOf("/"),
+                    dotIndex = moduleId.lastIndexOf(".");
+                slashIndex = ( slashIndex === -1 ? 0 : slashIndex + 1 );
+                dotIndex = ( dotIndex === -1 ? moduleId.length : dotIndex );
+                dotIndex = ( dotIndex < slashIndex ? moduleId.length : dotIndex );
+
+                var blueprintModuleId;
+                if ((dotIndex < moduleId.length) && ( moduleId.slice(dotIndex, moduleId.length) === ".reel")) {
+                    // We are in a reel
+                    blueprintModuleId = moduleId + "/" + moduleId.slice(slashIndex, dotIndex) + ".meta";
+                } else {
+                    // We look for the default
+                    blueprintModuleId = moduleId.slice(0, dotIndex) + ".meta";
+                }
+
+                Montage.defineProperty(self, "_blueprintModuleId", {
+                    value: blueprintModuleId
+                });
+            }
+            return self._blueprintModuleId;
+        }
+    },
+
+    blueprint: require("montage")._blueprintDescriptor
+
 });
 
 

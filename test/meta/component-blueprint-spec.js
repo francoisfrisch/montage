@@ -10,21 +10,22 @@ var Serializer = require("montage/core/serialization").Serializer;
 
 TestPageLoader.queueTest("component-blueprint-test/component-blueprint-test", function (testPage) {
     describe("meta/component-blueprint-spec", function () {
-        var component1;
-        var component2;
-        var component3;
+        var Component1;
+        var Component2;
+        var Component3;
 
 
         beforeEach(function () {
-            component1 = testPage.test.component1;
-            component2 = testPage.test.component2;
-            component3 = testPage.test.component3;
+            debugger
+            Component1 = Component.specialize();
+            Component2 = Component.specialize();
+            Component3 = Component.specialize();
         });
 
         it("can create new blueprint", function () {
-            var newBlueprint = new Blueprint().initWithName(component1.identifier);
-            component1.blueprint = newBlueprint;
-            var blueprintPromise = component1.blueprint;
+            var newBlueprint = new Blueprint().initWithName(Component1.identifier);
+            Component1.blueprint = newBlueprint;
+            var blueprintPromise = Component1.blueprint;
             return blueprintPromise.then(function (blueprint) {
                 expect(newBlueprint).toBeDefined();
                 expect(blueprint).toBe(newBlueprint);
@@ -32,10 +33,10 @@ TestPageLoader.queueTest("component-blueprint-test/component-blueprint-test", fu
         });
 
         it("can create new property blueprint", function () {
-            var newBlueprint = new Blueprint().initWithName(component1.identifier);
+            var newBlueprint = new Blueprint().initWithName(Component1.identifier);
             newBlueprint.addToOnePropertyBlueprintNamed("bindableProperty");
-            component1.blueprint = newBlueprint;
-            var blueprintPromise = component1.blueprint;
+            Component1.blueprint = newBlueprint;
+            var blueprintPromise = Component1.blueprint;
             return blueprintPromise.then(function (blueprint) {
                 var propertyBlueprint = blueprint.propertyBlueprintForName("bindableProperty");
                 expect(propertyBlueprint).toBeDefined();
@@ -45,7 +46,7 @@ TestPageLoader.queueTest("component-blueprint-test/component-blueprint-test", fu
         it("can serialize the component blueprint", function () {
             var serializer = new Serializer().initWithRequire(require);
 
-            var newBlueprint = new Blueprint().initWithName(component1.identifier);
+            var newBlueprint = new Blueprint().initWithName(Component1.identifier);
             //
             newBlueprint.addToOnePropertyBlueprintNamed("bindableProperty1");
             newBlueprint.addToOnePropertyBlueprintNamed("bindableProperty2");
@@ -58,9 +59,10 @@ TestPageLoader.queueTest("component-blueprint-test/component-blueprint-test", fu
             newBlueprint.addPropertyBlueprintToGroupNamed(newBlueprint.addToOnePropertyBlueprintNamed("requiredBindableProperty1"), "required");
             newBlueprint.addPropertyBlueprintToGroupNamed(newBlueprint.addToOnePropertyBlueprintNamed("requiredBindableProperty2"), "required");
             newBlueprint.addPropertyBlueprintToGroupNamed(newBlueprint.addToOnePropertyBlueprintNamed("requiredBindableProperty3"), "required");
-            component1.blueprint = newBlueprint;
+            debugger
+            Component1.blueprint = newBlueprint;
 
-            var blueprintPromise = component1.blueprint;
+            var blueprintPromise = Component1.blueprint;
             return blueprintPromise.then(function (blueprint) {
                 var serializedDescription = serializer.serializeObject(blueprint);
                 expect(serializedDescription).toBeTruthy();
@@ -68,7 +70,7 @@ TestPageLoader.queueTest("component-blueprint-test/component-blueprint-test", fu
         });
 
         it("can load the component blueprint from the reel", function () {
-            var blueprintPromise = component2.blueprint;
+            var blueprintPromise = Component2.blueprint;
             return blueprintPromise.then(function (blueprint) {
                 expect(blueprint).toBeTruthy();
                 expect(blueprint.propertyBlueprintForName("bindableProperty1")).toBeTruthy();
@@ -80,7 +82,7 @@ TestPageLoader.queueTest("component-blueprint-test/component-blueprint-test", fu
         it("can create validation rules", function () {
             var serializer = new Serializer().initWithRequire(require);
 
-            var newBlueprint = new Blueprint().initWithName(component3.identifier);
+            var newBlueprint = new Blueprint().initWithName(Component3.identifier);
             expect(newBlueprint).toBeTruthy();
             //
             newBlueprint.addToOnePropertyBlueprintNamed("bindableProperty1");
@@ -98,9 +100,9 @@ TestPageLoader.queueTest("component-blueprint-test/component-blueprint-test", fu
             //            newBlueprint.addPropertyValidationRule("rule2").validationSelector = Selector.property("requiredBindableProperty2").isBound;
             //            newBlueprint.addPropertyValidationRule("rule3").validationSelector = Selector.property("requiredBindableProperty3").isBound;
 
-            component3.blueprint = newBlueprint;
+            Component3.blueprint = newBlueprint;
 
-            var blueprintPromise = component3.blueprint;
+            var blueprintPromise = Component3.blueprint;
             return blueprintPromise.then(function (blueprint) {
                 expect(blueprint).toBeTruthy();
                 var serializedDescription = serializer.serializeObject(blueprint);
@@ -110,18 +112,19 @@ TestPageLoader.queueTest("component-blueprint-test/component-blueprint-test", fu
 
 
         describe("test converter blueprint", function () {
-            var component = new Component();
 
             it("should exist", function () {
-                var blueprintPromise = component.blueprint;
+                var blueprintPromise = Component.blueprint;
                 return blueprintPromise.then(function (blueprint) {
                     expect(blueprint).toBeTruthy();
                 });
             });
 
             it("should have element property blueprint", function () {
-                var blueprintPromise = component.blueprint;
+                var blueprintPromise = Component.blueprint;
+
                 return blueprintPromise.then(function (blueprint) {
+                    debugger
                     var propertyBlueprint = blueprint.propertyBlueprintForName("element");
                     expect(propertyBlueprint).toBeTruthy();
                     expect(propertyBlueprint.valueType).toBe("string");
@@ -130,7 +133,7 @@ TestPageLoader.queueTest("component-blueprint-test/component-blueprint-test", fu
             });
 
             it("should have identifier property blueprint", function () {
-                var blueprintPromise = component.blueprint;
+                var blueprintPromise = Component.blueprint;
                 return blueprintPromise.then(function (blueprint) {
                     var propertyBlueprint = blueprint.propertyBlueprintForName("identifier");
                     expect(propertyBlueprint).toBeTruthy();

@@ -10,11 +10,6 @@ var logger = require("core/logger").logger("montage-serializer");
 var MontageSerializer = Montage.specialize.call(Serializer, {
     _require: {value: null},
     _visitor: {value: null},
-    _units: {value: Object.create(null)},
-
-    _findObjectNameRegExp: {value: /([^\/]+?)(\.reel)?$/},
-    _toCamelCaseRegExp: {value: /(?:^|-)([^-])/g},
-    _replaceToCamelCase: {value: function(_, g1){return g1.toUpperCase()}},
 
     constructor: {
         value: function MontageSerializer() {}
@@ -31,7 +26,7 @@ var MontageSerializer = Montage.specialize.call(Serializer, {
                     this._builder,
                     this._labeler,
                     this._require,
-                    this._units);
+                    this.constructor._units);
 
             this._malker = new Malker(this._visitor);
 
@@ -56,7 +51,14 @@ var MontageSerializer = Montage.specialize.call(Serializer, {
             this.constructor.defineSerializationUnit.call(this, name, funktion);
         }
     }
+
 }, {
+
+    _units: {value: Object.create(null)},
+
+    _findObjectNameRegExp: {value: /([^\/]+?)(\.reel)?$/},
+    _toCamelCaseRegExp: {value: /(?:^|-)([^-])/g},
+    _replaceToCamelCase: {value: function(_, g1){return g1.toUpperCase()}},
 
     defineSerializationUnit: {
         value: function(name, funktion) {

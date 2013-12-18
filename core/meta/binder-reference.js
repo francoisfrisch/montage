@@ -69,7 +69,9 @@ exports.BinderReference = RemoteReference.create(RemoteReference, {
             }
             return deferredBinder.promise;
         }
-    },
+    }
+
+}, {
 
     referenceFromValue: {
         value: function(value) {

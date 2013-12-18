@@ -555,7 +555,7 @@ describe("core/core-spec", function() {
         });
 
         it("valueFromPrototype should call parent prototype method", function() {
-            expect(C.valueFromPrototype()).toEqual("PrototypeValueB");
+            expect(c.valueFromPrototype()).toEqual("PrototypeValueB");
         });
     });
 

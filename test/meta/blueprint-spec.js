@@ -257,15 +257,6 @@ describe("meta/blueprint-spec", function () {
         });
 
         describe("blueprint descriptor", function () {
-            it("does not work for objects that aren't in a module", function () {
-                var Sub = Blueprint.specialize();
-                var sub = new Sub();
-
-                expect(function () {
-                    var x = sub.blueprint;
-                }).toThrow();
-            });
-
 
             it("uses the correct module ID for objects with no .meta", function () {
                 var Sub = Blueprint.specialize();
@@ -286,7 +277,7 @@ describe("meta/blueprint-spec", function () {
                     isInstance: { value: true }
                 });
 
-                expect(sub.blueprintModuleId).toBe("pass.meta");
+                expect(Sub.blueprintModuleId).toBe("pass.meta");
             });
 
             it("creates a blueprint when the parent has no blueprint", function () {

@@ -919,14 +919,13 @@ var Blueprint = exports.Blueprint = Montage.specialize( /** @lends Blueprint# */
             }
             return messages;
         }
-    },
+    }
+
+}, {
 
     blueprintModuleId:require("montage")._blueprintModuleIdDescriptor,
 
-    blueprint:require("montage")._blueprintDescriptor
-
-
-}, {
+    blueprint:require("montage")._blueprintDescriptor,
 
     getBlueprintWithModuleId: {
         value: deprecate.deprecateMethod(void 0, function (moduleId, _require) {
